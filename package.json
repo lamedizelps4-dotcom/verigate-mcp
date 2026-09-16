@@ -1,13 +1,22 @@
 {
   "name": "verigate-mcp",
   "version": "1.0.0",
-  "description": "VeriGate-A2A Model Context Protocol (MCP) Server for sub-50ms formal AI safety verification",
+  "description": "Pre-flight SMT constraint verification engine (Z3 QF-LIA/QF-BV). Mathematical proof solving in <15ms with cryptographic proof receipts.",
   "keywords": [
     "mcp",
     "model-context-protocol",
     "verigate",
     "smt-solver",
-    "ai-safety"
+    "ai-safety",
+    "formal-verification",
+    "invariants",
+    "security"
   ],
-  "license": "Apache-2.0"
+  "homepage": "https://github.com/lamedizelps4-dotcom/verigate-mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lamedizelps4-dotcom/verigate-mcp.git"
+  },
+  "license": "Apache-2.0",
+  "author": "lamedizelps4"
 }

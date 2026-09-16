@@ -1,33 +1,122 @@
-# Smithery.ai MCP Registry Configuration
+# Smithery.ai Model Context Protocol Configuration
 # Specification: https://smithery.ai/docs
+name: "verigate"
+displayName: "VeriGate SMT Safety Gatekeeper"
+description: "Pre-flight SMT constraint verification engine (Z3 QF-LIA/QF-BV). Formally proves mathematical safety of proposed AI agent tool invocations in <15ms with Ed25519 cryptographic receipts."
+version: "1.0.0"
+homepage: "https://verigate-a2a-861341012353.us-central1.run.app"
+repository: "https://github.com/lamedizelps4-dotcom/verigate-mcp"
+license: "Apache-2.0"
+categories:
+  - "Security"
+  - "AI Safety"
+  - "Developer Tools"
+tags:
+  - "ai-safety"
+  - "formal-verification"
+  - "smt-solver"
+  - "invariants"
+  - "security"
+  - "mcp-server"
+
 startCommand:
   type: http
   url: "https://verigate-a2a-861341012353.us-central1.run.app/mcp"
 
+configSchema:
+  type: object
+  title: "VeriGate Connection Settings"
+  description: "Configuration parameters for VeriGate SMT Safety Verifier"
+  properties:
+    apiKey:
+      type: string
+      description: "Optional authorization token for priority queueing and elevated rate limits"
+      default: ""
+    logLevel:
+      type: string
+      description: "Client logging verbosity level"
+      enum: ["info", "debug", "warn", "error"]
+      default: "info"
+  required: []
+
+instructions: "Always consult VeriGate before executing non-idempotent, financial, or system-altering actions. Pass ambient state context and strict numeric formulas in verigate.verify_invariants to obtain cryptographic proof receipts before proceeding."
+
 tools:
-  - name: verify_invariants
-    description: "Formally proves mathematical safety of proposed AI agent tool invocations using linear invariant solver in sub-50ms."
+  - name: "verigate.verify_invariants"
+    description: "Verifies mathematical safety invariants and SMT constraint satisfiability on proposed AI agent tool calls before execution. Call this tool whenever an agent proposes a high-impact action (e.g. database mutation, money transfer, system reconfiguration, or credential emission) to prove it cannot violate predefined safety boundaries."
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
         action_id:
           type: string
-          description: "Unique identifier for the proposed action"
+          description: "Unique tracking identifier for the proposed action to establish verification provenance"
+          example: "act-4829-payout"
         tool_name:
           type: string
-          description: "Target tool name to invoke"
+          description: "Target tool name proposed for execution by the agent"
+          example: "treasury.transfer_funds"
         parameters:
           type: object
-          description: "Proposed tool arguments"
+          description: "Key-value map of proposed execution arguments for the target tool"
+          example:
+            recipient: "0x49B5B23933c0615951f28b495C3a58e0a3952f46"
+            amount_usdc: 50.0
         ambient_state:
           type: object
-          description: "Current system state snapshot"
+          description: "Current system snapshot, user roles, limits, and environmental variables prior to tool execution"
+          example:
+            daily_disbursed_usd: 1200.0
+            max_daily_budget_usd: 5000.0
+            caller_role: "finance_agent"
         invariants:
           type: array
-          description: "List of safety invariant rules"
+          description: "List of safety invariant rules and SMT formulas that must evaluate to true"
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: "Unique identifier for this invariant check"
+                example: "inv_daily_budget_limit"
+              formula:
+                type: string
+                description: "Linear arithmetic formula over parameters and ambient_state variables"
+                example: "ambient_state.daily_disbursed_usd + parameters.amount_usdc <= ambient_state.max_daily_budget_usd"
+              description:
+                type: string
+                description: "Human-readable intent of this invariant"
+                example: "Ensure proposed payout does not breach remaining daily budget"
+            required:
+              - id
+              - description
+          example:
+            - id: "inv_daily_budget_limit"
+              formula: "ambient_state.daily_disbursed_usd + parameters.amount_usdc <= ambient_state.max_daily_budget_usd"
+              description: "Ensure proposed payout does not breach remaining daily budget"
       required:
         - action_id
         - tool_name
         - parameters
         - ambient_state
         - invariants
+
+prompts:
+  - name: "verigate.preflight_safety_audit"
+    description: "Generates a pre-flight formal safety verification request for an upcoming high-impact action or financial transaction."
+    arguments:
+      - name: "action_description"
+        description: "Description of the high-risk action proposed by the agent"
+        required: true
+      - name: "risk_threshold"
+        description: "Maximum allowable risk or budget constraint"
+        required: false
+
+resources:
+  - uri: "verigate://specs/invariants-standard"
+    name: "Standard Safety Invariant Library"
+    description: "Curated library of SMT linear invariant templates for financial transfers, rate limits, and access controls."
+    mimeType: "application/json"

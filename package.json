@@ -1,0 +1,13 @@
+{
+  "name": "verigate-mcp",
+  "version": "1.0.0",
+  "description": "VeriGate-A2A Model Context Protocol (MCP) Server for sub-50ms formal AI safety verification",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "verigate",
+    "smt-solver",
+    "ai-safety"
+  ],
+  "license": "Apache-2.0"
+}

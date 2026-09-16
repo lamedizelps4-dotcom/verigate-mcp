@@ -1,0 +1,33 @@
+# Smithery.ai MCP Registry Configuration
+# Specification: https://smithery.ai/docs
+startCommand:
+  type: http
+  url: "https://verigate-a2a-861341012353.us-central1.run.app/mcp"
+
+tools:
+  - name: verify_invariants
+    description: "Formally proves mathematical safety of proposed AI agent tool invocations using linear invariant solver in sub-50ms."
+    inputSchema:
+      type: object
+      properties:
+        action_id:
+          type: string
+          description: "Unique identifier for the proposed action"
+        tool_name:
+          type: string
+          description: "Target tool name to invoke"
+        parameters:
+          type: object
+          description: "Proposed tool arguments"
+        ambient_state:
+          type: object
+          description: "Current system state snapshot"
+        invariants:
+          type: array
+          description: "List of safety invariant rules"
+      required:
+        - action_id
+        - tool_name
+        - parameters
+        - ambient_state
+        - invariants

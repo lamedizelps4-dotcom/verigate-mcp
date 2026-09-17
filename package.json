@@ -10,13 +10,15 @@
     "ai-safety",
     "formal-verification",
     "invariants",
-    "security"
+    "security",
+    "developer-tools"
   ],
-  "homepage": "https://github.com/lamedizelps4-dotcom/verigate-mcp",
+  "homepage": "https://verigate-a2a-861341012353.us-central1.run.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lamedizelps4-dotcom/verigate-mcp.git"
   },
+  "icon": "https://raw.githubusercontent.com/lamedizelps4-dotcom/verigate-mcp/main/icon.svg",
   "license": "Apache-2.0",
   "author": "lamedizelps4"
 }

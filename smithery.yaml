@@ -1,4 +1,4 @@
-# Smithery.ai Model Context Protocol Configuration
+# Smithery.ai Model Context Protocol Configuration - VeriGate
 # Specification: https://smithery.ai/docs
 name: "verigate"
 displayName: "VeriGate SMT Safety Gatekeeper"
@@ -6,6 +6,8 @@ description: "Pre-flight SMT constraint verification engine (Z3 QF-LIA/QF-BV). F
 version: "1.0.0"
 homepage: "https://verigate-a2a-861341012353.us-central1.run.app"
 repository: "https://github.com/lamedizelps4-dotcom/verigate-mcp"
+icon: "https://raw.githubusercontent.com/lamedizelps4-dotcom/verigate-mcp/main/icon.svg"
+iconUrl: "https://raw.githubusercontent.com/lamedizelps4-dotcom/verigate-mcp/main/icon.svg"
 license: "Apache-2.0"
 categories:
   - "Security"
@@ -45,9 +47,16 @@ tools:
   - name: "verigate.verify_invariants"
     description: "Verifies mathematical safety invariants and SMT constraint satisfiability on proposed AI agent tool calls before execution. Call this tool whenever an agent proposes a high-impact action (e.g. database mutation, money transfer, system reconfiguration, or credential emission) to prove it cannot violate predefined safety boundaries."
     annotations:
+      readOnly: true
       readOnlyHint: true
+      destructive: false
       destructiveHint: false
+      openWorld: false
       openWorldHint: false
+      audience:
+        - "user"
+        - "assistant"
+      priority: 0.95
     inputSchema:
       type: object
       properties:
@@ -61,13 +70,17 @@ tools:
           example: "treasury.transfer_funds"
         parameters:
           type: object
-          description: "Key-value map of proposed execution arguments for the target tool"
+          description: "Key-value dictionary mapping tool argument names to proposed execution values"
+          additionalProperties:
+            description: "Argument value for the target tool (number, string, or boolean)"
           example:
             recipient: "0x49B5B23933c0615951f28b495C3a58e0a3952f46"
             amount_usdc: 50.0
         ambient_state:
           type: object
           description: "Current system snapshot, user roles, limits, and environmental variables prior to tool execution"
+          additionalProperties:
+            description: "System state variable value (budget limit, current counter, or role)"
           example:
             daily_disbursed_usd: 1200.0
             max_daily_budget_usd: 5000.0
@@ -88,10 +101,11 @@ tools:
                 example: "ambient_state.daily_disbursed_usd + parameters.amount_usdc <= ambient_state.max_daily_budget_usd"
               description:
                 type: string
-                description: "Human-readable intent of this invariant"
+                description: "Human-readable safety intent of this invariant rule"
                 example: "Ensure proposed payout does not breach remaining daily budget"
             required:
               - id
+              - formula
               - description
           example:
             - id: "inv_daily_budget_limit"
@@ -103,6 +117,26 @@ tools:
         - parameters
         - ambient_state
         - invariants
+    outputSchema:
+      type: object
+      description: "Formal SMT safety verification result and Ed25519 cryptographic receipt"
+      properties:
+        status:
+          type: string
+          description: "Verification outcome: VALID (satisfiable within invariants) or CONTRADICTION_PROVED (unsafe, rejected)"
+        solver_latency_ms:
+          type: number
+          description: "SMT solver execution duration in milliseconds"
+        proof_receipt:
+          type: string
+          description: "Cryptographic Ed25519 signed verification receipt establishing execution authorization"
+        checked_invariants_count:
+          type: integer
+          description: "Total number of SMT invariant formulas evaluated"
+      required:
+        - status
+        - solver_latency_ms
+        - proof_receipt
 
 prompts:
   - name: "verigate.preflight_safety_audit"
